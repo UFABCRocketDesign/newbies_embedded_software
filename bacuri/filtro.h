@@ -7,9 +7,9 @@
 // Defines a filter type that will act as a circular list
 typedef struct filter
 {
-	int values[NUMEROS_MEDIA];
+	float values[NUMEROS_MEDIA];
 	int front;
-	int sum;
+	float sum;
 } filter;
 
 float mediaMovel(filter &f, int newValue)

@@ -15,8 +15,12 @@
 // filter *averager = new filter();
 filter averager = filter();
 
+// define NUMEROS_FILTRADOS aqui?
 // Medidas filtradas
-int medidasFiltradas[NUMEROS_FILTRADOS];
+float medidasFiltradas[NUMEROS_FILTRADOS];
+int i=0;
+
+float initialAltitude;
 
 
 void setup()
@@ -25,6 +29,9 @@ void setup()
 	Wire.begin();
 	// Inicializa o BMP085
 	bmp085Calibration();
+
+	bmp085GetTemperature(bmp085ReadUT());
+	initialAltitude = calcAltitude(bmp085GetPressure(bmp085ReadUP()));
 }
 
 void loop()
@@ -56,6 +63,24 @@ void loop()
 	// Mostra o valor com 2 casas decimais
 	Serial.print(altitude, 2);
 	Serial.println(" M");
+
+	Serial.print("Altitude Inicial: ");
+	Serial.print(initialAltitude, 2);
+	Serial.println("m");
+	medidasFiltradas[i] = mediaMovel(averager, altitude-initialAltitude);
+	i++;
+	i %= NUMEROS_FILTRADOS;
+
+	Serial.print("{ ");
+	for(int i=0; i<NUMEROS_FILTRADOS; i++)
+	{
+		Serial.print(medidasFiltradas[i], 2);
+		Serial.print(", ");
+	}
+	Serial.println("}");
+	Serial.print("Altura: ");
+	Serial.print(altitude-initialAltitude, 2);
+	Serial.println(" m");
 
 	Serial.println();
 
