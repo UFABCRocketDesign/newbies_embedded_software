@@ -12,13 +12,15 @@ typedef struct filter
 	float sum;
 } filter;
 
-typedef struct
+typedef struct medidas
 {
 	float values[NUMEROS_FILTRADOS];
 	int front;
-	int out;
-	float varSum;
+	float sum;
 } medidas;
+float last = 0;
+
+
 
 float mediaMovel(filter &f, float newValue)
 {
@@ -39,19 +41,39 @@ float mediaMovel(filter &f, float newValue)
 	return f.sum / NUMEROS_MEDIA;
 }
 
-void novaMedida(medidas &m, float newValue)
+
+// E se fossem int truncados? Talvez a "caindo em media"
+int newVariation(float newValue)
 {
-	int back = m.front-1;
-	if(back == -1)
-		back = NUMEROS_FILTRADOS-1;
+	if(newValue > last)
+	{
+		last = newValue;
+		return 0;
+	}
+	
+	if(newValue < last)
+	{
+		last = newValue;
+		return -1;
+	}
 
-	m.varSum -= m.values[m.front] - m.values[m.out];
+	return 0;
+}
 
-	m.out = m.values[m.front];
-	m.values[m.front] = newValue;
+void saveVariation(medidas &v, int newValue)
+{
+	// Decreases the sum value by the number being removed
+	v.sum -= v.values[v.front];
 
-	m.varSum += m.values[m.front] - m.values[back];
+	// Changes it's value
+	v.values[v.front] = newValue;
 
-	m.front++;
-	m.front %= NUMEROS_FILTRADOS;
+	// Increases the sum value by the number inserted
+	v.sum += newValue;
+
+	// Walks one index and begin a new cicle if necessary
+	v.front++;
+	v.front %= NUMEROS_FILTRADOS;
+
+	return;
 }

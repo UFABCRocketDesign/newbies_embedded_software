@@ -53,34 +53,32 @@ void loop()
 	float altura = altitude - initialAltitude;
 
 // graphic
-
 	Serial.print(altura, 2);
 	Serial.print(" ");
 	float filtrado = mediaMovel(averager,altura);
 	Serial.print(filtrado, 2);
 	Serial.print(" ");
-	novaMedida(medidasFiltradas, filtrado);
-	Serial.print(medidasFiltradas.varSum, 2);
-
+	saveVariation(medidasFiltradas, newVariation(filtrado));
+	Serial.print(medidasFiltradas.sum, 0);
 
 
 // monitor
 /*
-	novaMedida(medidasFiltradas, mediaMovel(averager, altura));
+	float filtrado = mediaMovel(averager, altura);
+	saveVariation(medidasFiltradas, newVariation(filtrado));
 
 	Serial.println("Filtro ");
 	printVec(averager.values, NUMEROS_MEDIA);
 	Serial.println("Medidas: ");
 	printVec(medidasFiltradas.values, NUMEROS_FILTRADOS);
 
-	Serial.print("varSum = ");
-	Serial.print(medidasFiltradas.varSum, 2);
-
-	while(medidasFiltradas.varSum < -20)
+	Serial.print("Soma = ");
+	Serial.print(medidasFiltradas.sum, 2);
+	*/
+	while(medidasFiltradas.sum < LIMITE_APOGEU)
 	{
 		Serial.print("a");
 	}
-*/
 
 	Serial.println();
 
