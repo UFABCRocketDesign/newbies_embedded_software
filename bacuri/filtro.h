@@ -1,10 +1,10 @@
 /********************************************************************************/
+/************************************ Filter ************************************/
 /***************************** Apogee detection e-e *****************************/
 /********************************************************************************/
-#define NUMEROS_MEDIA 5
-#define NUMEROS_FILTRADOS 20
 
 // Defines a filter type that will act as a circular list
+// "filter" = circular list ?
 typedef struct filter
 {
 	float values[NUMEROS_MEDIA];
@@ -12,7 +12,15 @@ typedef struct filter
 	float sum;
 } filter;
 
-float mediaMovel(filter &f, int newValue)
+typedef struct
+{
+	float values[NUMEROS_FILTRADOS];
+	int front;
+	int out;
+	float varSum;
+} medidas;
+
+float mediaMovel(filter &f, float newValue)
 {
 	// Decreases the sum value by the number being removed
 	f.sum -= f.values[f.front];
@@ -29,4 +37,21 @@ float mediaMovel(filter &f, int newValue)
 
 	// Calculates de average and returns
 	return f.sum / NUMEROS_MEDIA;
+}
+
+void novaMedida(medidas &m, float newValue)
+{
+	int back = m.front-1;
+	if(back == -1)
+		back = NUMEROS_FILTRADOS-1;
+
+	m.varSum -= m.values[m.front] - m.values[m.out];
+
+	m.out = m.values[m.front];
+	m.values[m.front] = newValue;
+
+	m.varSum += m.values[m.front] - m.values[back];
+
+	m.front++;
+	m.front %= NUMEROS_FILTRADOS;
 }

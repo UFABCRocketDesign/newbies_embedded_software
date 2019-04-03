@@ -7,6 +7,7 @@
 */
 
 #include <Wire.h>
+#include "configurations.h"
 #include "bmp085.h"
 #include "filtro.h"
 
@@ -17,73 +18,84 @@ filter averager = filter();
 
 // define NUMEROS_FILTRADOS aqui?
 // Medidas filtradas
-float medidasFiltradas[NUMEROS_FILTRADOS];
-int i=0;
+medidas medidasFiltradas = medidas();
 
 float initialAltitude;
 
 
 void setup()
 {
-	Serial.begin(9600);
+	Serial.begin(250000);
 	Wire.begin();
 	// Inicializa o BMP085
 	bmp085Calibration();
 
-	bmp085GetTemperature(bmp085ReadUT());
-	initialAltitude = calcAltitude(bmp085GetPressure(bmp085ReadUP()));
+	for(int i=0; i<VALORES_INICIAIS; i++)
+	{
+		bmp085GetTemperature(bmp085ReadUT());
+		initialAltitude += calcAltitude(bmp085GetPressure(bmp085ReadUP()));
+	}
+	initialAltitude /= VALORES_INICIAIS;
 }
 
 void loop()
 {
-	// Chama a rotina que calcula a temperatura
+	// Chama a rotina que calcula a temperatura (C)
 	// Esta rotina DEVE ser executada primeiro
 	float temperature = bmp085GetTemperature(bmp085ReadUT());
-	// Chama a rotina que calcula a pressao
+	// Chama a rotina que calcula a pressao (Pa)
 	float pressure = bmp085GetPressure(bmp085ReadUP());
-	// Chama a rotina que calcula atmosfera
+	// Chama a rotina que calcula atmosfera (atm)
 	float atm = pressure / 101325;
-	// Chama a rotina que calcula a altitude
+	// Chama a rotina que calcula a altitude (m)
 	float altitude = calcAltitude(pressure);
+	// Calcula a altura (m)
+	float altura = altitude - initialAltitude;
 
-	Serial.print("Temperatura: ");
-	// Mostra a temperatura com 2 casas decimais
-	Serial.print(temperature, 2);
-	Serial.println(" C");
+// graphic
 
-	Serial.print("Pressao: ");
-	Serial.print(pressure, 0);
-	Serial.println(" Pa");
+	Serial.print(altura, 2);
+	Serial.print(" ");
+	float filtrado = mediaMovel(averager,altura);
+	Serial.print(filtrado, 2);
+	Serial.print(" ");
+	novaMedida(medidasFiltradas, filtrado);
+	Serial.print(medidasFiltradas.varSum, 2);
 
-	Serial.print("Atmosfera padrao : ");
-	// Mostra o valor com 4 casas decimais
-	Serial.println(atm, 4); //display 4 decimal places
 
-	Serial.print("Altitude: ");
-	// Mostra o valor com 2 casas decimais
-	Serial.print(altitude, 2);
-	Serial.println(" M");
 
-	Serial.print("Altitude Inicial: ");
-	Serial.print(initialAltitude, 2);
-	Serial.println("m");
-	medidasFiltradas[i] = mediaMovel(averager, altitude-initialAltitude);
-	i++;
-	i %= NUMEROS_FILTRADOS;
+// monitor
+/*
+	novaMedida(medidasFiltradas, mediaMovel(averager, altura));
 
-	Serial.print("{ ");
-	for(int i=0; i<NUMEROS_FILTRADOS; i++)
+	Serial.println("Filtro ");
+	printVec(averager.values, NUMEROS_MEDIA);
+	Serial.println("Medidas: ");
+	printVec(medidasFiltradas.values, NUMEROS_FILTRADOS);
+
+	Serial.print("varSum = ");
+	Serial.print(medidasFiltradas.varSum, 2);
+
+	while(medidasFiltradas.varSum < -20)
 	{
-		Serial.print(medidasFiltradas[i], 2);
-		Serial.print(", ");
+		Serial.print("a");
 	}
-	Serial.println("}");
-	Serial.print("Altura: ");
-	Serial.print(altitude-initialAltitude, 2);
-	Serial.println(" m");
+*/
 
 	Serial.println();
 
 	//Aguarda 5 segundos e reinicia o processo
 	//delay(5000);
+}
+
+void printVec(float v[], int size){
+	int i;
+	Serial.print("{ ");
+	for(i=0; i<size-1; i++)
+	{
+		Serial.print(v[i], 2);
+		Serial.print(", ");
+	}
+	Serial.print(v[i], 2);
+	Serial.println("}");
 }
