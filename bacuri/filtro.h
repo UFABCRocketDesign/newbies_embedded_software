@@ -1,6 +1,5 @@
 /********************************************************************************/
 /************************************ Filter ************************************/
-/***************************** Apogee detection e-e *****************************/
 /********************************************************************************/
 
 // Defines a filter type that will act as a circular list
@@ -11,16 +10,6 @@ typedef struct filter
 	int front;
 	float sum;
 } filter;
-
-typedef struct medidas
-{
-	float values[NUMEROS_FILTRADOS];
-	int front;
-	float sum;
-} medidas;
-float last = 0;
-
-
 
 float mediaMovel(filter &f, float newValue)
 {
@@ -42,20 +31,34 @@ float mediaMovel(filter &f, float newValue)
 }
 
 
+/********************************************************************************/
+/***************************** Apogee detection e-e *****************************/
+/********************************************************************************/
+typedef struct medidas
+{
+	float values[NUMEROS_FILTRADOS];
+	int front;
+	float sum;
+} medidas;
+float last = 0;
+
 // E se fossem int truncados? Talvez a "caindo em media"
 int newVariation(float newValue)
-{
-	if(newValue > last)
-	{
-		last = newValue;
-		return 0;
-	}
-	
+{	
+	/* [DEBUG] 
+	Serial.print("{");
+	Serial.print(last, 2);
+	Serial.print(", ");
+	Serial.print(newValue, 2);
+	Serial.println("}");
+	*/
 	if(newValue < last)
 	{
 		last = newValue;
 		return -1;
 	}
+
+	last = newValue;
 
 	return 0;
 }

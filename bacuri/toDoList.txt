@@ -1,0 +1,14 @@
+Remove BMP while loops
+Comment code
+Chance variables and structures names
+Translate the remaning portuguese text
+
+Implement SD card module https://oscarliang.com/sd-card-arduino/
+
+Complete dataFile.available()'s and if(dataFile)'s
+organize SD prints.
+Print detected apogee.
+
+Implement a micros() time print
+
+Check if dataFile was opened
